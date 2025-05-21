@@ -11,7 +11,7 @@ using Presentation.Models;
 
 namespace Presentation.Services;
 
-public class AccountService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IMemoryCache memoryCache, ServiceBusSender serviceBusSender)
+public class AccountService(UserManager<AppUser> userManager, IMemoryCache memoryCache, ServiceBusSender serviceBusSender)
 {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly ServiceBusSender _serviceBusSender = serviceBusSender;
