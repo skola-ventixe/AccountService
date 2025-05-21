@@ -42,5 +42,33 @@ namespace Presentation.Controllers
             return Ok(new { token, userId, fullName});
         }
 
+        [HttpGet("exists/{email}")]
+        public async Task<IActionResult> Exists(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Email is null or empty");
+
+            var exists = await _accountService.ExistsAsync(email);
+            if (exists)
+                return BadRequest("User already exists");
+
+            await _accountService.SendVerificationCodeAsync(email);
+            return Ok(exists);
+        }
+
+        [HttpPost("verify")]
+        public IActionResult Verify([FromBody] UserVerificationDto user)
+        {
+            if (user == null)
+                return BadRequest("User data is null");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = _accountService.VerifyCode(user);
+            if (!result)
+                return BadRequest("Invalid or expired code");
+
+            return Ok("User verified successfully");
+        }
+
     }
 }

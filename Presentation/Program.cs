@@ -1,4 +1,5 @@
 using System.Text;
+using Azure.Messaging.ServiceBus;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton( x => new ServiceBusClient(
+    builder.Configuration.GetConnectionString("ServiceBusConnection")));
+builder.Services.AddSingleton(x =>
+    x.GetRequiredService<ServiceBusClient>().CreateSender("emailqueue"));
 
 builder.Services.AddScoped<AccountService>();
 
@@ -44,7 +50,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Management", policy => policy.RequireRole("Manager", "Admin"));
 });
 
-
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {
