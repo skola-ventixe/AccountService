@@ -25,8 +25,15 @@ namespace Presentation.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors.Select(e => e.Description));
 
+            var validUser = await _accountService.SignInAsync(user.Email, user.Password);
+            if (validUser == null)
+                return BadRequest("User could not be found after registration");
 
-            return Ok("User registered successfully");
+            var token = _accountService.GenerateJwtToken(validUser, _configuration);
+            var userId = validUser.Id;
+            var fullName = $"{validUser.FirstName} {validUser.LastName}";
+
+            return Ok(new { token, userId, fullName });
         }
 
         [HttpPost("signin")]
