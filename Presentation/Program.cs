@@ -10,11 +10,13 @@ using Presentation.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var sqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(sqlConnection));
 
-builder.Services.AddSingleton( x => new ServiceBusClient(
-    builder.Configuration.GetConnectionString("ServiceBusConnection")));
+var serviceBusConnection = builder.Configuration["ServiceBusConnection"];
+
+builder.Services.AddSingleton( x => new ServiceBusClient(serviceBusConnection));
 builder.Services.AddSingleton(x =>
     x.GetRequiredService<ServiceBusClient>().CreateSender("emailqueue"));
 
